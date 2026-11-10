@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: support
+      POSTGRES_USER: support
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - support_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support -d support"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  api:
+    depends_on:
+      db:
+        condition: service_healthy
+  poller:
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
+volumes:
+  support_postgres:

@@ -14,6 +14,7 @@ SCHEMA = [
 '''CREATE TABLE IF NOT EXISTS events (source_key TEXT PRIMARY KEY, state TEXT NOT NULL, attempts INTEGER NOT NULL, error TEXT NOT NULL DEFAULT '', ticket_id TEXT, input_tokens INTEGER NOT NULL DEFAULT 0, output_tokens INTEGER NOT NULL DEFAULT 0, engine TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)''',
 '''CREATE TABLE IF NOT EXISTS knowledge_base (id TEXT PRIMARY KEY, section TEXT NOT NULL, title TEXT NOT NULL, content TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1, updated_at TEXT NOT NULL)''',
 '''CREATE TABLE IF NOT EXISTS audit (id TEXT PRIMARY KEY, ticket_id TEXT, action TEXT NOT NULL, detail TEXT NOT NULL, created_at TEXT NOT NULL)''',
+'''CREATE TABLE IF NOT EXISTS mailbox_baselines (prefix TEXT PRIMARY KEY, start_uid BIGINT NOT NULL, created_at TEXT NOT NULL)''',
 '''CREATE INDEX IF NOT EXISTS messages_thread ON messages(ticket_id,created_at)''',
 '''CREATE INDEX IF NOT EXISTS messages_reference ON messages(message_id)'''
 ]
@@ -41,7 +42,7 @@ class Database:
         with self.connection() as c:
             for statement in SCHEMA: self.execute(c, statement)
             if not self.sqlite:
-                for table in ['tickets','messages','events','knowledge_base','audit']:
+                for table in ['tickets','messages','events','knowledge_base','audit','mailbox_baselines']:
                     self.execute(c, f'ALTER TABLE {table} ENABLE ROW LEVEL SECURITY')
     def all(self, sql, args=()):
         with self.connection() as c: return [dict(r) for r in self.execute(c, sql, args).fetchall()]
@@ -49,6 +50,13 @@ class Database:
         rows = self.all(sql, args); return rows[0] if rows else None
     def audit(self, ticket, action, detail):
         with self.connection() as c:self.execute(c, 'INSERT INTO audit VALUES (?,?,?,?,?)', (ident(),ticket,action,detail,now()))
+    def mailbox_baseline(self, prefix, identifiers):
+        """Keep the initial UID boundary; restarts never silently import old mail."""
+        latest=max((int(uid) for uid in identifiers), default=0)
+        with self.connection() as c:
+            created=self.execute(c, 'INSERT INTO mailbox_baselines VALUES (?,?,?) ON CONFLICT(prefix) DO NOTHING RETURNING prefix', (prefix,latest,now())).fetchone()
+            row=self.execute(c, 'SELECT start_uid FROM mailbox_baselines WHERE prefix=?', (prefix,)).fetchone()
+            return int(row['start_uid']), created is not None
     def handled(self, key):
         row = self.one('SELECT state, attempts FROM events WHERE source_key=?', (key,))
         return bool(row and (row['state'] != 'failed' or row['attempts'] >= 3))

@@ -9,3 +9,5 @@ data/*.sqlite*
 data/live_eval_results.json
 backups/
 .DS_Store
+secrets/
+*.log

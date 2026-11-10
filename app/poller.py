@@ -11,7 +11,13 @@ def poll_once(db=None, config=None):
     if config.app_mode!='live':return {'mode':'demo','processed':0}
     count=0;failures=0
     with HostingerMail(config) as mail:
-        for uid in mail.identifiers():
+        identifiers=mail.identifiers()
+        boundary,initialized=db.mailbox_baseline(mail.prefix,identifiers)
+        if initialized:
+            db.audit(None,'mailbox_initialized','Bestaande berichten overgeslagen; vanaf nu nieuwe mail verwerken')
+            return {'mode':'live','processed':0,'failed':0,'initialized':True,'existing_skipped':len(identifiers)}
+        for uid in identifiers:
+            if int(uid)<=boundary:continue
             key=mail.key(uid)
             if db.handled(key):continue
             if count>=config.poll_batch_size:break
