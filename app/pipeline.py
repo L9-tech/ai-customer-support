@@ -24,5 +24,5 @@ def handle_message(db, engine, message, own_address=''):
         # Error types are useful for diagnosis without retaining credentials or raw provider responses.
         db.finish(message.key,'failed',ticket,error=type(error).__name__)
         if ticket:
-            db.decide(ticket,message.key,Decision(category='other',state='escalated',reason='Verwerking mislukt; zie gebeurtenis'))
+            db.processing_failed(ticket,message.key)
         return 'failed'

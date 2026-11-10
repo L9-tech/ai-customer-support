@@ -1,8 +1,11 @@
+import secrets
 from pathlib import Path
 from typing import Literal
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
+
+_TEMPORARY_PASSWORD = secrets.token_urlsafe(32)
 
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / '.env', override=False)
@@ -13,6 +16,7 @@ class Settings(BaseSettings):
     database_url: str = ''
     demo_database_path: str = str(ROOT / 'data' / 'demo.sqlite3')
     openai_api_key: str = ''
+    ai_enabled: bool = True
     classifier_model: str = 'openai:gpt-6-luna'
     agent_model: str = 'openai:gpt-6.1-sol'
     imap_host: str = 'imap.hostinger.com'
@@ -45,7 +49,7 @@ class Settings(BaseSettings):
 
     @property
     def effective_password(self):
-        return self.dashboard_password or 'demo-local'
+        return self.dashboard_password or _TEMPORARY_PASSWORD
 
     @property
     def db_url(self):

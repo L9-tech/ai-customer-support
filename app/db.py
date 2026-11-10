@@ -104,6 +104,14 @@ class Database:
             self.execute(c,'INSERT INTO messages VALUES (?,?,?,?,?,?,?,?,?,?,?)',(ident(),ticket['id'],outid,'out',sender,'Re: '+ticket['subject'],ticket['draft'],outid,'[]',0,now()))
     def delivery_unknown(self,id):
         with self.connection() as c:self.execute(c,"UPDATE tickets SET state='delivery_unknown',reason=?,updated_at=? WHERE id=?",('SMTP resultaat onzeker. Controleer de mailbox voordat je opnieuw handelt.',now(),id))
+    def processing_failed(self,id,key):
+        with self.connection() as c:
+            self.execute(c,"UPDATE tickets SET state='failed',reason=?,version=version+1,updated_at=? WHERE id=? AND latest_key=? AND state NOT IN ('escalated','sending','delivery_unknown')",('Verwerking mislukt. Controleer de verwerkingslog en de verbinding of het API-tegoed.',now(),id,key))
+    def retry(self,id,version):
+        with self.connection() as c:
+            row=self.execute(c,"UPDATE tickets SET state='processing',version=version+1,updated_at=? WHERE id=? AND version=? AND state='failed' RETURNING *",(now(),id,version)).fetchone()
+            if row:self.execute(c,"UPDATE events SET state='failed',attempts=0,error='',updated_at=? WHERE source_key=? AND state='failed'",(now(),row['latest_key']))
+            return dict(row) if row else None
     def seed(self, entries):
         with self.connection() as c:
             for e in entries:self.execute(c,'INSERT INTO knowledge_base (id,section,title,content,updated_at) VALUES (?,?,?,?,?) ON CONFLICT(id) DO NOTHING',(e['id'],e['section'],e['title'],e['content'],now()))

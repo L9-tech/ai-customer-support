@@ -45,8 +45,10 @@ Dit voorkomt een onverwachte import van de volledige bestaande inbox. Er is nog 
 ## Gecontroleerd op 10 november 2026
 
 - HTTPS en Docker op de VPS werken.
-- 24 offline tests en de TypeScript/productiebuild slagen lokaal.
+- 27 offline tests en de TypeScript/productiebuild slagen lokaal.
 - Echte IMAP-login, INBOX-selectie en SMTP-login slagen vanaf de ontwikkelmachine. Er zijn daarbij geen berichtteksten gelezen en geen mails verstuurd.
-- De OpenAI-sleutel en het privé dashboardwachtwoord waren bij de controle nog niet ingevuld. Daarom is de volledige live AI-route nog niet gevalideerd.
+- De OpenAI-sleutel is ingevuld en geldig. Modelgeneratie is geblokkeerd door ontbrekend API-tegoed (429 / credit_balance_exhausted). De privéconfiguratie wordt klaargezet; volledige live verwerking is nog niet gevalideerd.
 
 Bronnen: [Datalumina](https://learn.datalumina.com/docs/customer-support-automation), [Pydantic AI OpenAI](https://pydantic.dev/docs/ai/models/openai/), [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol).
+
+Op verzoek is geen API-tegoed toegevoegd. De live omgeving gebruikt daarom `AI_ENABLED=false`. Nieuwe mail kan worden vastgelegd, maar er worden geen modelaanroepen gedaan. Na aanvullen van tegoed zijn een geslaagde echte evaluatie, `AI_ENABLED=true` en herstart nodig. Mislukte verwerking kan via het dashboard opnieuw worden vrijgegeven.

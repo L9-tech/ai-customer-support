@@ -47,7 +47,7 @@ def create_app(config=settings, database=None):
     def health():return {'status':'ok'}
     @app.get('/api/status',dependencies=[Depends(require)])
     def status():
-        return {'mode':config.app_mode,'sending':config.enable_sending and config.app_mode=='live','counts':db.all('SELECT state,COUNT(*) AS count FROM tickets GROUP BY state'),'usage':db.one('SELECT COALESCE(SUM(input_tokens),0) AS input_tokens,COALESCE(SUM(output_tokens),0) AS output_tokens FROM events')}
+        return {'mode':config.app_mode,'ai_enabled':config.ai_enabled,'sending':config.enable_sending and config.app_mode=='live','counts':db.all('SELECT state,COUNT(*) AS count FROM tickets GROUP BY state'),'usage':db.one('SELECT COALESCE(SUM(input_tokens),0) AS input_tokens,COALESCE(SUM(output_tokens),0) AS output_tokens FROM events')}
     @app.get('/api/tickets',dependencies=[Depends(require)])
     def tickets():return db.all('SELECT * FROM tickets ORDER BY updated_at DESC LIMIT 200')
     @app.get('/api/tickets/{id}',dependencies=[Depends(require)])
@@ -83,6 +83,12 @@ def create_app(config=settings, database=None):
             db.delivery_unknown(id);db.audit(id,'delivery_unknown',outid)
             raise HTTPException(502,'Verzendresultaat onzeker. Controleer je mailbox; niet automatisch opnieuw proberen.')
         db.audit(id,'sent',outid);return {'status':'sent','warning':warning}
+    @app.post('/api/tickets/{id}/retry',dependencies=[Depends(require)])
+    def retry(id:str,data:Approval):
+        row=db.retry(id,data.version)
+        if not row:raise HTTPException(409,'Ticket gewijzigd of niet opnieuw te verwerken')
+        db.audit(id,'retry_requested','Opnieuw vrijgegeven door ingelogde medewerker')
+        return row
     @app.post('/api/demo',dependencies=[Depends(require)])
     def demo():
         if config.app_mode!='demo':raise HTTPException(403,'Demo alleen in demomodus')

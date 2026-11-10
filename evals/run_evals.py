@@ -39,13 +39,26 @@ def main():
     if not args.live:raise SystemExit('Voeg --live toe om echte OpenAI-aanroepen met kosten uit te voeren. Er wordt geen mail verzonden.')
     if not settings.openai_api_key:raise SystemExit('OPENAI_API_KEY ontbreekt')
     records=[]
+    Path('data').mkdir(exist_ok=True)
+    report_path=Path('data/live_eval_results.json')
+    metadata={'date':datetime.now(timezone.utc).isoformat(),'classifier':settings.classifier_model,'agent':settings.agent_model}
     with tempfile.TemporaryDirectory() as tmp:
         db=Database('sqlite:///'+tmp+'/eval.sqlite');db.init();db.seed(entries());engine=AIEngine(settings,db)
+        # Check real model access once before scheduling the complete dataset.
+        # A quota/authentication failure must not produce 18 identical API failures.
+        first_text=CASES[0][3]
+        try:
+            first_result=engine.decide(Incoming('eval','test@example.invalid','Evaluatie',first_text,'<eval@example.invalid>'),[])
+        except Exception as error:
+            report_path.write_text(json.dumps({**metadata,'status':'blocked','error_type':type(error).__name__,'records':[]},indent=2))
+            raise SystemExit('Modelcontrole mislukt: '+type(error).__name__+'. Controleer API-toegang en tegoed; geen evaluatiescore beschikbaar.')
         def evaluate(text):
-            d=engine.decide(Incoming('eval','test@example.invalid','Evaluatie',text,'<eval@example.invalid>'),[])
-            records.append({'input':text,'decision':d.model_dump()});return d
-        dataset=Dataset(cases=[Case(name=n,inputs=text,expected_output={'category':cat,'state':state}) for n,cat,state,text in CASES],evaluators=[Matches()])
+            d=first_result if text==first_text else engine.decide(Incoming('eval','test@example.invalid','Evaluatie',text,'<eval@example.invalid>'),[])
+            name,category,state,_=next(c for c in CASES if c[3]==text)
+            records.append({'case':name,'input':text,'expected':{'category':category,'state':state},'category_match':d.category==category,'decision_match':d.state==state,'decision':d.model_dump()});return d
+        dataset=Dataset(name='customer-support-validation',cases=[Case(name=n,inputs=text,expected_output={'category':cat,'state':state}) for n,cat,state,text in CASES],evaluators=[Matches()])
         report=dataset.evaluate_sync(evaluate,max_concurrency=1);report.print()
-    Path('data').mkdir(exist_ok=True)
-    Path('data/live_eval_results.json').write_text(json.dumps({'date':datetime.now(timezone.utc).isoformat(),'classifier':settings.classifier_model,'agent':settings.agent_model,'records':records},ensure_ascii=False,indent=2))
+    passed=len(records)==len(CASES) and all(r['category_match'] and r['decision_match'] for r in records)
+    report_path.write_text(json.dumps({**metadata,'status':'passed' if passed else 'failed','case_count':len(CASES),'completed':len(records),'failures':len(report.failures),'records':records},ensure_ascii=False,indent=2))
+    if not passed:raise SystemExit(1)
 if __name__=='__main__':main()

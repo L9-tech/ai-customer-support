@@ -56,6 +56,24 @@ class SupportTests(unittest.TestCase):
             def decide(self,*a):raise ValueError('secret-placeholder')
         self.assertEqual(handle_message(self.db,Broken(),self.msg),'failed')
         self.assertNotIn('secret-placeholder',str(self.db.all('SELECT * FROM events')))
+    def test_model_failure_can_recover_after_configuration_fix(self):
+        class Broken:
+            def decide(self,*a):raise RuntimeError('provider unavailable')
+        self.assertEqual(handle_message(self.db,Broken(),self.msg),'failed')
+        self.assertEqual(self.db.all('SELECT * FROM tickets')[0]['state'],'failed')
+        self.assertEqual(handle_message(self.db,self.engine,self.msg),'review')
+        self.assertEqual(len(self.db.all('SELECT * FROM messages')),1)
+    def test_exhausted_retry_requires_current_version_and_failed_ticket(self):
+        class Broken:
+            def decide(self,*a):raise RuntimeError('provider unavailable')
+        for _ in range(3):handle_message(self.db,Broken(),self.msg)
+        self.assertEqual(handle_message(self.db,self.engine,self.msg),'duplicate')
+        ticket=self.db.all('SELECT * FROM tickets')[0]
+        self.assertIsNone(self.db.retry(ticket['id'],ticket['version']-1))
+        self.assertIsNotNone(self.db.retry(ticket['id'],ticket['version']))
+        self.assertEqual(handle_message(self.db,self.engine,self.msg),'review')
+        current=self.db.ticket(ticket['id'])
+        self.assertIsNone(self.db.retry(ticket['id'],current['version']))
     def test_parser_mime_html_and_headers(self):
         raw=b'From: Test <test@example.invalid>\r\nSubject: Hello\r\nMessage-ID: <a@x>\r\nReferences: <z@x>\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<p>Hello</p><script>bad()</script>'
         m=parse_message(raw,'k');self.assertEqual(m.sender,'test@example.invalid');self.assertIn('Hello',m.body);self.assertNotIn('bad',m.body);self.assertEqual(m.references,['<z@x>'])
