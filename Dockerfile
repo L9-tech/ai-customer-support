@@ -1,7 +1,7 @@
 FROM node:22-slim AS ui
 WORKDIR /ui
 RUN corepack enable && corepack prepare pnpm@11.25.0 --activate
-COPY dashboard/package.json dashboard/pnpm-lock.yaml ./
+COPY dashboard/package.json dashboard/pnpm-lock.yaml dashboard/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY dashboard/ ./
 RUN pnpm run build
