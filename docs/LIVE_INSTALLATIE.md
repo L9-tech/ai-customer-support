@@ -5,6 +5,7 @@ De webapp en HTTPS staan op https://support.oumarbalde.com. De broncode staat op
 ## Benodigde instellingen
 
 - `APP_MODE=live`
+- `AI_ENABLED=false` zolang echte modelverwerking bewust gepauzeerd blijft.
 - `OPENAI_API_KEY`: een eigen OpenAI-projectsleutel, alleen in de lokale en serverconfiguratie.
 - `CLASSIFIER_MODEL=openai:gpt-6-luna`
 - `AGENT_MODEL=openai:gpt-6.1-sol`
@@ -45,9 +46,10 @@ Dit voorkomt een onverwachte import van de volledige bestaande inbox. Er is nog 
 ## Gecontroleerd op 10 november 2026
 
 - HTTPS en Docker op de VPS werken.
-- 27 offline tests en de TypeScript/productiebuild slagen lokaal.
+- 27 offline tests slagen lokaal en in de Linux-container op de VPS. De TypeScript/productiebuild slaagt lokaal.
 - Echte IMAP-login, INBOX-selectie en SMTP-login slagen vanaf de ontwikkelmachine. Er zijn daarbij geen berichtteksten gelezen en geen mails verstuurd.
-- De OpenAI-sleutel is ingevuld en geldig. Modelgeneratie is geblokkeerd door ontbrekend API-tegoed (429 / credit_balance_exhausted). De privéconfiguratie wordt klaargezet; volledige live verwerking is nog niet gevalideerd.
+- De privéconfiguratie is actief. Inloggen, live status en handmatig de mailbox controleren zijn in de browser getest. De eerste poll sloeg 41 bestaande berichten over; er zijn nog geen live tickets.
+- De OpenAI-sleutel is ingevuld en geldig. Modelgeneratie is geblokkeerd door ontbrekend API-tegoed (429 / credit_balance_exhausted). Er zijn geen echte modelantwoorden; volledige live verwerking is nog niet gevalideerd.
 
 Bronnen: [Datalumina](https://learn.datalumina.com/docs/customer-support-automation), [Pydantic AI OpenAI](https://pydantic.dev/docs/ai/models/openai/), [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol).
 

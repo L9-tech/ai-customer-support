@@ -5,7 +5,7 @@ De referentie is https://learn.datalumina.com/docs/customer-support-automation. 
 | Cursusonderdeel | Projectbestand | Uitwerking en grens |
 |---|---|---|
 | Project setup | app/config.py, pyproject.toml | Settings en bestaande dependencies behouden en uitgebreid |
-| Mailtoegang en mailclient | app/hostinger.py | Hostinger IMAP/SMTP, pakketimports en parsing; live te controleren |
+| Mailtoegang en mailclient | app/hostinger.py | Hostinger IMAP/SMTP; echte login gecontroleerd, nieuwe-mailroute privé geactiveerd |
 | Poller | app/poller.py | Afzonderlijk proces; batchverwerking en databaseclaims |
 | Database | app/db.py, supabase/migrations | PostgreSQL/Supabase in live; SQLite uitsluitend voor demo en tests |
 | Eerste antwoord | app/main.py | Bewerken en bewust verzenden van een concept; standaard uit |
@@ -13,7 +13,7 @@ De referentie is https://learn.datalumina.com/docs/customer-support-automation. 
 | AI pipeline | app/ai, app/pipeline.py | Pydantic AI met OpenAI, classifier, kennisbanktools, beslisregels en menselijke controle |
 | Evals | tests, evals/run_evals.py | Offline technische tests en aparte set van 18 echte modelevaluaties |
 | Dashboard | dashboard/src | React, tickets, gesprekken, gebeurtenissen, tokengebruik, kennisbank; eigen CSS in plaats van shadcn |
-| Server en Docker | Dockerfile, compose.yaml | Bouwconfiguratie en tunnelinstructie aanwezig; niet op VPS uitgevoerd |
+| Server en Docker | Dockerfile, compose.yaml | Docker, PostgreSQL en Caddy met HTTPS op de eigen VPS uitgevoerd |
 
 ## Datapunt 1 Mijn e-mailtester als gegevensbron
 
@@ -21,7 +21,7 @@ Vraag: hoe haal ik e-mail betrouwbaar en controleerbaar op als mogelijke invoer 
 
 Eigen bijdrage: keuze voor Hostinger en OpenAI, eerste IMAP-code, configuratievragen, correcties op klassenaam en instellingen, statuscontrole en UID-zoekopdracht. Het eigen bestand van vóór de uitbreiding is apart bewaard. De gebruiker meldde eerder dat verbinden en de inbox openen werkte. De nieuwe adapter, parser en tests zijn door de assistent uitgewerkt op verzoek van de gebruiker.
 
-Bewijs: oorspronkelijke code, logboek, offline controle, huidige adapter, testgevallen voor lege inbox en fouten. Dit ondersteunt onderdelen van LU1 en LU5. Het bewijst nog niet zelfstandig het volledige data-analyseproces.
+Bewijs: oorspronkelijke code, logboek, offline controle, huidige adapter, testgevallen voor lege inbox en fouten. Dit ondersteunt onderdelen van LU1 en LU4. Het bewijst nog niet zelfstandig het volledige data-analyseproces.
 
 ## Datapunt 2 Customer support verwerking en beoordeling
 
