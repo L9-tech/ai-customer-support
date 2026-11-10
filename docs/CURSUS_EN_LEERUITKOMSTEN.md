@@ -7,7 +7,7 @@ De referentie is https://learn.datalumina.com/docs/customer-support-automation. 
 | Project setup | app/config.py, pyproject.toml | Settings en bestaande dependencies behouden en uitgebreid |
 | Mailtoegang en mailclient | app/hostinger.py | Hostinger IMAP/SMTP; echte login gecontroleerd, nieuwe-mailroute privé geactiveerd |
 | Poller | app/poller.py | Afzonderlijk proces; batchverwerking en databaseclaims |
-| Database | app/db.py, supabase/migrations | PostgreSQL/Supabase in live; SQLite uitsluitend voor demo en tests |
+| Database | app/db.py, supabase/migrations | Eigen PostgreSQL in live; Supabase niet gevalideerd; SQLite uitsluitend voor demo en tests |
 | Eerste antwoord | app/main.py | Bewerken en bewust verzenden van een concept; standaard uit |
 | Knowledge base | knowledge_base, app/seed.py | Zes secties, revisies, kennisbankeditor; beknopt voorbeeldbeleid |
 | AI pipeline | app/ai, app/pipeline.py | Pydantic AI met OpenAI, classifier, kennisbanktools, beslisregels en menselijke controle |
@@ -15,21 +15,17 @@ De referentie is https://learn.datalumina.com/docs/customer-support-automation. 
 | Dashboard | dashboard/src | React, tickets, gesprekken, gebeurtenissen, tokengebruik, kennisbank; eigen CSS in plaats van shadcn |
 | Server en Docker | Dockerfile, compose.yaml | Docker, PostgreSQL en Caddy met HTTPS op de eigen VPS uitgevoerd |
 
-## Datapunt 1 Mijn e-mailtester als gegevensbron
+## Datapunt 1 Volledig technisch dossier voor LU1 en LU4
 
-Vraag: hoe haal ik e-mail betrouwbaar en controleerbaar op als mogelijke invoer voor customer support?
+Het eerste datapunt bevat de hele technische documentatie: eigen e-mailtester, verdere customer support-app, cursuskeuzes, gegevensstroom, code, testbewijs, live servercontrole, bronnen en alle relevante Notionnotities. LU1 onderbouwt de methodische aanpak en controles; LU4 de vertaling van een concreet supportprobleem naar een beroepsproduct.
 
-Eigen bijdrage: keuze voor Hostinger en OpenAI, eerste IMAP-code, configuratievragen, correcties op klassenaam en instellingen, statuscontrole en UID-zoekopdracht. Het eigen bestand van vóór de uitbreiding is apart bewaard. De gebruiker meldde eerder dat verbinden en de inbox openen werkte. De nieuwe adapter, parser en tests zijn door de assistent uitgewerkt op verzoek van de gebruiker.
+De eigen eerste IMAP-code is apart bewaard. De uitbreiding en technische controles zijn op verzoek met AI-hulp uitgevoerd. Echte IMAP- en SMTP-authenticatie, PostgreSQL en Docker zijn gecontroleerd. Alle 27 offline tests slagen lokaal en op de server. De OpenAI-evaluaties leverden geen antwoorden wegens ontbrekend API-tegoed; de live AI-route blijft daarom zichtbaar gepauzeerd. De kwaliteit van echte modelantwoorden en bruikbaarheid voor een medewerker zijn nog niet aangetoond.
 
-Bewijs: oorspronkelijke code, logboek, offline controle, huidige adapter, testgevallen voor lege inbox en fouten. Dit ondersteunt onderdelen van LU1 en LU4. Het bewijst nog niet zelfstandig het volledige data-analyseproces.
+## Datapunt 2 Review en presentatie voor LU2 en LU3
 
-## Datapunt 2 Customer support verwerking en beoordeling
+De gekozen activiteit is een technische peer review en presentatie met een echte AI engineer. Samen één concreet probleem kiezen, taken afspreken, een wijziging uitvoeren en hertesten vormt het beoogde bewijs voor LU2. Uitleggen, luisteren, doorvragen, de uitleg aanpassen en besluiten bevestigen vormt het beoogde bewijs voor LU3.
 
-Vraag: hoe helpt de datastroom een supportmedewerker kiezen tussen een onderbouwd conceptantwoord en menselijke opvolging?
-
-Product: verwerking, database, kennisbank, twee modelrollen, beslisregels, dashboard en evaluatieopzet. Offline is zichtbaar hoe zes synthetische mails tot tickets, concepten en escalaties leiden. De nieuwe implementatie en technische controles zijn met AI gemaakt. Echte modelkwaliteit en bruikbaarheid voor een medewerker moeten nog worden getest.
-
-Bewijs: code, schema, demo, screenshot, technische testresultaten, evaluatiecases en vastgelegde beperkingen. Dit ondersteunt onderdelen van LU1 en LU4. Voor LU3 is een demonstratie met een echte belanghebbende en verwerkt advies nodig. Voor LU2 ontbreken een menselijke samenwerkingspartner, afspraken en een gezamenlijk resultaat. AI-hulp geldt niet als bewijs dat die samenwerking plaatsvond.
+De reviewopzet, taakverdeling, presentatievragen en bewijsregistratie zijn voorbereid. De reviewer, het gesprek en gezamenlijke resultaat zijn nog niet vastgelegd. Dit is dus nog geen afgerond datapunt. Na uitvoering worden feedback, eigen en gezamenlijke bijdrage, wijziging, hertest en persoonlijke reflectie toegevoegd. AI-hulp geldt niet als bewijs van menselijke samenwerking.
 
 ## Gezamenlijke reflectie in het schoolformat
 
